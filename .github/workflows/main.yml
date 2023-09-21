@@ -1,0 +1,29 @@
+name: Build, Test, and format code
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run KTlint Check
+        run: ./gradlew ktlintCheck
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Gradle Build
+        run: ./gradlew build
