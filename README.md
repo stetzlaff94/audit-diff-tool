@@ -1,5 +1,9 @@
 # audit-diff-tool
 
+## Build Status
+
+![Gradle CI](https://github.com/stetzlaff94/audit-diff-tool/actions/workflows/main.yml/badge.svg)
+
 ## Overview
 
 The `DiffTool` is a utility designed to perform a detailed comparison between two JSON representations of objects. The purpose is to audit the changes made to the data, highlighting the differences, additions, and removals of fields or elements.
