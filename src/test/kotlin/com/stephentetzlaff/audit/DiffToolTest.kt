@@ -6,6 +6,7 @@ import com.stephentetzlaff.audit.data.PropertyUpdated
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 
 data class Foo(
     val bar: String?,
@@ -46,8 +47,9 @@ class DiffToolTest : DescribeSpec({
 
     describe("null handling tests") {
         it("null values test") {
-            val output = diffTool.diff(Foo("Bar", null), Foo(null, "Fizz"))
-            output.shouldContainAll(
+            val result = diffTool.diff(Foo("Bar", null), Foo(null, "Fizz"))
+            result.size shouldBe 2
+            result.shouldContainAll(
                 PropertyUpdated(
                     property = ".bar",
                     previous = "Bar",
@@ -62,6 +64,7 @@ class DiffToolTest : DescribeSpec({
         }
         it("null object test") {
             val result = diffTool.diff(Buzz(Foo("bar", "fizz"), null), Buzz(null, Bar(listOf("fizz"), "buzz")))
+            result.size shouldBe 5
             result.shouldContainAll(
                 PropertyUpdated(
                     property = ".foo.bar",
@@ -71,6 +74,11 @@ class DiffToolTest : DescribeSpec({
                 PropertyUpdated(
                     property = ".foo.fizz",
                     previous = "fizz",
+                    current = null
+                ),
+                PropertyUpdated(
+                    property = ".foo.version",
+                    previous = "v0",
                     current = null
                 ),
                 ListUpdate(
@@ -90,6 +98,7 @@ class DiffToolTest : DescribeSpec({
                 Bar(null, "bar"),
                 Bar(listOf("fizz", "buzz"), "bar")
             )
+            result.size shouldBe 1
             result.shouldContainAll(
                 ListUpdate(
                     property = ".fizz",
@@ -103,6 +112,7 @@ class DiffToolTest : DescribeSpec({
     describe("DiffTool on primitives") {
         it("should diff two booleans") {
             val result = diffTool.diff(true, false)
+            result.size shouldBe 1
             result.shouldContain(
                 PropertyUpdated(
                     property = "",
@@ -113,6 +123,7 @@ class DiffToolTest : DescribeSpec({
         }
         it("should diff two ints") {
             val result = diffTool.diff(1, 2)
+            result.size shouldBe 1
             result.shouldContain(
                 PropertyUpdated(
                     property = "",
@@ -123,6 +134,7 @@ class DiffToolTest : DescribeSpec({
         }
         it("should diff two strings") {
             val result = diffTool.diff("Fizz", "Buzz")
+            result.size shouldBe 1
             result.shouldContain(
                 PropertyUpdated(
                     property = "",
@@ -136,6 +148,7 @@ class DiffToolTest : DescribeSpec({
         fooBuilder("Fizz").let { fooOld ->
             fooBuilder("Buzz").let { fooNew ->
                 val result = diffTool.diff(fooOld, fooNew)
+                result.size shouldBe 1
                 result.shouldContain(
                     PropertyUpdated(
                         property = ".bar",
@@ -151,6 +164,7 @@ class DiffToolTest : DescribeSpec({
             barBuilder(listOf("fizz", "buzz")).let { barOld ->
                 barBuilder(listOf("fizz", "fuzz")).let { barNew ->
                     val result = diffTool.diff(barOld, barNew)
+                    result.size shouldBe 1
                     result.shouldContainAll(
                         ListUpdate(
                             property = ".fizz",
@@ -165,6 +179,7 @@ class DiffToolTest : DescribeSpec({
             fizzBuilder(listOf("foo", "bar"), "buzz").let { fbOld ->
                 fizzBuilder(listOf("foo", "fiz"), "buzz").let { fbNew ->
                     val result = diffTool.diff(fbOld, fbNew)
+                    result.size shouldBe 1
                     result.shouldContainAll(
                         PropertyUpdated(
                             property = ".foo[v1].bar",
