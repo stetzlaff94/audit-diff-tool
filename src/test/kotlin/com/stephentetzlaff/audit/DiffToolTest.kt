@@ -1,7 +1,6 @@
 package com.stephentetzlaff.audit
 
 import com.stephentetzlaff.audit.data.AuditId
-import com.stephentetzlaff.audit.data.ChangeType
 import com.stephentetzlaff.audit.data.ListUpdate
 import com.stephentetzlaff.audit.data.PropertyUpdated
 import io.kotest.core.spec.style.DescribeSpec
@@ -15,7 +14,7 @@ data class Foo(
 )
 
 data class Bar(
-    val fizz: List<String>,
+    val fizz: List<String>?,
     val buzz: String
 )
 
@@ -48,12 +47,12 @@ class DiffToolTest : DescribeSpec({
     describe("null handling tests") {
         it("null values test") {
             val output = diffTool.diff(Foo("Bar", null), Foo(null, "Fizz"))
-            output.shouldContainAll<ChangeType>(
+            output.shouldContainAll(
                 PropertyUpdated(
                     property = ".bar",
                     previous = "Bar",
                     current = null
-                ) as ChangeType,
+                ),
                 PropertyUpdated(
                     property = ".fizz",
                     previous = null,
@@ -75,7 +74,7 @@ class DiffToolTest : DescribeSpec({
                     current = null
                 ),
                 ListUpdate(
-                    property = ".bar",
+                    property = ".bar.fizz",
                     added = listOf("fizz"),
                     removed = emptyList()
                 ),
@@ -83,6 +82,19 @@ class DiffToolTest : DescribeSpec({
                     property = ".bar.buzz",
                     previous = null,
                     current = "buzz"
+                )
+            )
+        }
+        it("null collection test") {
+            val result = diffTool.diff(
+                Bar(null, "bar"),
+                Bar(listOf("fizz", "buzz"), "bar")
+            )
+            result.shouldContainAll(
+                ListUpdate(
+                    property = ".fizz",
+                    added = listOf("fizz", "buzz"),
+                    removed = emptyList()
                 )
             )
         }
@@ -94,8 +106,8 @@ class DiffToolTest : DescribeSpec({
             result.shouldContain(
                 PropertyUpdated(
                     property = "",
-                    previous = "true",
-                    current = "false"
+                    previous = true,
+                    current = false
                 )
             )
         }
@@ -104,8 +116,8 @@ class DiffToolTest : DescribeSpec({
             result.shouldContain(
                 PropertyUpdated(
                     property = "",
-                    previous = "1",
-                    current = "2"
+                    previous = 1,
+                    current = 2
                 )
             )
         }
