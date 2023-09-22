@@ -13,5 +13,9 @@ data class PropertyUpdated(
 data class ListUpdate(
     override val property: String,
     val added: List<Any?>,
-    val current: List<Any?>
+    val removed: List<Any?>
 ) : ChangeType(property)
+
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class AuditId

@@ -1,8 +1,10 @@
 package com.stephentetzlaff.audit.factories
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.stephentetzlaff.audit.AuditIdCollectionSerializer
 
 val defaultObjectMapper = ObjectMapper().apply {
     registerModules(
@@ -13,6 +15,9 @@ val defaultObjectMapper = ObjectMapper().apply {
             .configure(KotlinFeature.NullIsSameAsDefault, false)
             .configure(KotlinFeature.SingletonSupport, false)
             .configure(KotlinFeature.StrictNullChecks, false)
-            .build()
+            .build(),
+        SimpleModule().apply {
+            addSerializer(Collection::class.java, AuditIdCollectionSerializer())
+        }
     )
 }
